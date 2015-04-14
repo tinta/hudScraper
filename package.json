@@ -1,5 +1,5 @@
 {
-  "name": "HUD Scraper",
+  "name": "hudScraper",
   "version": "1.0.0",
   "description": "Scrape HUD homes",
   "main": "index.js",
