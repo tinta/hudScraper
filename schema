@@ -1,0 +1,17 @@
+CREATE TABLE IF NOT EXISTS `homes` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `property_case` varchar(31) NOT NULL,
+  `street_addr` varchar(63) NOT NULL,
+  `state` varchar(31) NOT NULL,
+  `county` varchar(31) NOT NULL,
+  `city` varchar(63) NOT NULL,
+  `price` double NOT NULL,
+  `bed` double NOT NULL,
+  `bath` double NOT NULL,
+  `listing_period` varchar(31) NOT NULL,
+  `bid_open_date` date NOT NULL,
+  `permalink` varchar(511) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+

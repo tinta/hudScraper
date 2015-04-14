@@ -1,0 +1,11 @@
+mysql> CREATE DATABASE IF NOT EXISTS hud;
+Query OK, 1 row affected (0.00 sec)
+
+mysql> CREATE USER 'huduser'@'localhost' IDENTIFIED BY 'fACviAxbd9fme7u';
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> GRANT ALL PRIVILEGES ON hud.* TO 'huduser'@'localhost';
+Query OK, 0 rows affected (0.00 sec)
+
+$ mysql hud -u huduser -p < schema
+
