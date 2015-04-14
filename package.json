@@ -1,0 +1,14 @@
+{
+  "name": "HUD Scraper",
+  "version": "1.0.0",
+  "description": "Scrape HUD homes",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "nightmare": "^1.8.0"
+  }
+}
