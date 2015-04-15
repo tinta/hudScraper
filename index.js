@@ -2,20 +2,32 @@ var Nightmare = require('nightmare');
 var page = new Nightmare();
 
 var options = {};
+options.city = '';
+options.zip = ''
 options.state = 'AL';
-options.madison = 'madison';
+options.county = 'madison';
+options.pageSize = 1000
 
 var url = [
-    'https://www.hudhomestore.com/Listing/PropertySearchResult.aspx?pageId=1&zipCode=&city=&',
+    'https://www.hudhomestore.com/Listing/PropertySearchResult.aspx?pageId=1&',
+    'zipCode=',
+    options.zip,
+    '&',
+    'city=',
+    options.city,
+    '&',
     'county=',
     options.county,
     '&s',
     'State=',
     options.state,
     '&fromPrice=0&toPrice=0&fCaseNumber=&bed=0&bath=0&street=&buyerType=0&specialProgram=&Status=0&OrderbyName=SLISTINGPERIOD&OrderbyValue=ASC&s',
-    'PageSize=100',
+    'PageSize=',
+    options.pageSize,
     '&sLanguage=ENGLISH#'
-].join();
+].join('');
+
+console.log(url)
 
 page.goto(url)
     .wait(100)
@@ -30,35 +42,74 @@ page.goto(url)
         var scrapeListings = function () {
             var listings = {};
 
-            // listings = $('.FormTablerowAlt').length;
-            $('.FormTablerowAlt').each(function() {
+            var $rows = $('.FormTablerowAlt');
+            $rows.each(function() {
                 var $this = $(this);
-                var address = (function() {
-                    var rawAddress = $this.find('td[style="width:18%;"] > span').html();
-                    // return rawAddress
-                    return rawAddress.replace(/\<br\>/gi, ' ');
-                })();
-                var uid = $this.find('td[style="width:13%;"] u').text();
-                var price   = $this.find('span#span2 > b').text();
+
+                var $els = {};
+                $els.location = $this.find('td[style="width:18%;"] > span');
+                $els.link = $this.find('td[style="width:13%;"] a[onclick]');
+                $els.uid = $els.link.find('u');
+
+                var rawLink = $els.link.attr('onclick');
+                var link;
+                if (rawLink) {
+                    link = rawLink
+                        .replace("top.location.href = '", '')
+                        .replace("';", '');
+                } else {
+                    console.log('Could not find ')
+                }
+
+                var uid;
+                if ($els.uid) {
+                    uid = $els.uid.text();
+                }
+
+                var _location = $els.location.html().split('<br>');
+                var address = _location[0];
+                var _area = _location[1].split(', ');
+                var city, state, zip;
+                if (_area.length === 3) {
+                    city = _area[0];
+                    state = _area[1];
+                    zip = _area[2];
+                } else {
+                    console.log('Could not find city, state and zip of ' + uid);
+                }
+
+                var rawPrice   = $this.find('span#span2 > b').text();
+                var price;
+                if (rawPrice) {
+                    price = rawPrice
+                        .replace('$', '')
+                        .replace(',', '');
+                } else {
+                    console.log('Could not find price of ' + uid);
+                }
+
                 var status  = $this.find('span#span4 span').text();
                 var bidDate = $this.find('td:nth-of-type(9) span').text();
 
                 var row = {};
-                row.price = price;
-                row.address = address;
-                row.status = status;
-                row.bidDate = bidDate;
+                row.link    = link || '';
+                row.price   = price || '';
+                row.address = address || '';
+                row.city    = city || '';
+                row.state   = state || '';
+                row.zip     = zip || '';
+                row.status  = status || '';
+                row.bidDate = bidDate || '';
 
                 listings[uid] = row;
             });
 
             return listings;
         }
-    
+
         load$();
         return scrapeListings();
     }, function(listings) {
-        var timestamp;
         console.log(listings)
     })
     .run();
