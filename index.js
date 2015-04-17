@@ -42,13 +42,31 @@ var url = [
 
 console.log(url)
 
-function setQuotes (text) {
-    return "'" + text + "'";
+function encase (casing, text) {
+    return casing + text + casing;
+}
+
+function encaseInQuotes (text) {
+    return encase('"', text);
+}
+
+function encaseInTicks (text) {
+    return encase('`', text);
 }
 
 page.goto(url)
     .wait(100)
     .evaluate(hudScraper.scrape, function(listings) {
+        var uidList = [];
+
+        _.each(listings, function(listing, uid) {
+            uidList.push(
+                encaseInQuotes(uid)
+            );
+        });
+
+        uidList.join(', ');
+
         var tableName = 'homes';
         mysql.connect(function(err) {
             if (err) {
@@ -58,77 +76,77 @@ page.goto(url)
 
             console.log('connected as id ' + mysql.threadId);
 
-            _.each(listings, function(listing, uid) {
-                var queryFindListing = [
-                    'SELECT *',
-                    'FROM',
-                    tableName,
-                    'WHERE property_case=' + uid,
-                ].join(' ');
+            var SQLFindListing = [
+                'SELECT *',
+                'FROM',
+                tableName,
+                'WHERE',
+                'property_case',
+                'IN',
+                '(', uidList, ')'
+            ].join(' ');
 
-                mysql.query(queryFindListing, function(err, results) {
-                    if (err) {
-                        console.log('listing err')
-                        console.log(err)
-                        mysql.end();
-                        return;
-                    }
-                    var date = moment(listing.bidDate, 'MM/DD/YYYY').format('YYYY-MM-DD');
+            var query = mysql.query(SQLFindListing);
 
-                    var valuesList = [
-                        setQuotes(uid),
-                        setQuotes(listing.address),
-                        setQuotes(options.state),
-                        setQuotes(options.county),
-                        setQuotes(listing.city),
-                        setQuotes(listing.price),
+            query.on('end', function(foo) {
+                mysql.end();
+            });
+
+            query.on('result', function(result) {
+                var date, insertKeysList, insertValuesList, SQLInsertListing;
+
+                if (result === undefined) {
+                    date = moment(listing.bidDate, 'MM/DD/YYYY').format('YYYY-MM-DD');
+
+                    insertKeysList = [
+                        encaseInTicks('property_case'),
+                        encaseInTicks('street_addr'),
+                        encaseInTicks('state'),
+                        encaseInTicks('county'),
+                        encaseInTicks('city'),
+                        encaseInTicks('price'),
+                        encaseInTicks('bed'),
+                        encaseInTicks('bath'),
+                        encaseInTicks('listing_period'),
+                        encaseInTicks('bid_open_date'),
+                        encaseInTicks('permalink')
+                    ].join(', ')
+
+                    insertValuesList = [
+                        encaseInQuotes(uid),
+                        encaseInQuotes(listing.address),
+                        encaseInQuotes(options.state),
+                        encaseInQuotes(options.county),
+                        encaseInQuotes(listing.city),
+                        encaseInQuotes(listing.price),
                         123,
                         123,
                         123,
-                        setQuotes(date),
-                        setQuotes(listing.link),
+                        encaseInQuotes(date),
+                        encaseInQuotes(listing.link)
                     ].join(', ');
 
-                    var queryInsertListing = [
+                    SQLInsertListing = [
                         'INSERT',
                         'INTO',
                         tableName,
-                        '(',
-                        [
-                            '`property_case`',
-                            '`street_addr`',
-                            '`state`',
-                            '`county`',
-                            '`city`',
-                            '`price`',
-                            '`bed`',
-                            '`bath`',
-                            '`listing_period`',
-                            '`bid_open_date`',
-                            '`permalink`',
-                        ].join(', '),
-                        ')',
+                        '(', insertKeysList, ')',
                         'VALUES',
-                        '(',
-                        valuesList,
-                        ')'
+                        '(', insertValuesList, ')'
                     ].join(' ');
 
-                    if (results[0] === undefined) {
-                        mysql.query(queryInsertListing, function(err, foo) {
-                            if (err) {
-                                console.log(err)
-                                // mysql.end();
-                                return;
-                            }
-                            console.log('success!')
-                            console.log(foo)
-                        });
-                    } else {
-                        console.log('already exists')
-                        console.log(results)
-                    }
-                });
+                    mysql.query(SQLInsertListing, function(err, foo) {
+                        if (err) {
+                            console.log(err)
+                            return;
+                        }
+                        console.log('success!')
+                        console.log(foo)
+                    });
+                } else {
+                    console.log('already exists')
+                    console.log(result)
+                }
             });
         });
     })
