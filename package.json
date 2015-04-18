@@ -4,7 +4,7 @@
   "description": "Scrape HUD homes",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node scraper/index.js"
   },
   "author": "",
   "license": "ISC",
