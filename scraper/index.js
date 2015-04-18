@@ -40,7 +40,7 @@ var url = [
     '&sLanguage=ENGLISH#'
 ].join('');
 
-console.log(url)
+console.log('Scraping ' + url)
 
 function encase (casing, text) {
     return casing + text + casing;
