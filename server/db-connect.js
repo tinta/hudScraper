@@ -1,10 +1,13 @@
-var Mysql = require('mysql');
+var mysql = require('mysql');
 
-var mysql = Mysql.createConnection({
-    host    : 'localhost',
-    database: 'hud',
-    user    : 'huduser',
-    password: 'fACviAxbd9fme7u'
-});
+var connect = function () {
+    var options = {};
+    options.host = 'localhost';
+    options.database = 'hud';
+    options.user = 'huduser';
+    options.password = process.env.HUD_DB_PW;
 
-module.exports = mysql;
+    return mysql.createConnection(options);
+};
+
+module.exports = connect;

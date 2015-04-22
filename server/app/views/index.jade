@@ -1,1 +1,30 @@
-h2= listings
+doctype html
+html
+    head
+        meta(http-equiv='content-type', content='text/html; charset=utf-8')
+
+        link(rel="stylesheet" type="text/css" href="/ng-table/dist/ng-table.min.css")
+
+        script(type='text/javascript', src="/angular/angular.js")
+        script(type='text/javascript', src="/ng-table/dist/ng-table.js")
+        script(type='text/javascript', src="/resources/js/listings.js")
+        script(type='text/javascript').
+            window.listings = !{ listings };
+
+    body(
+        ng-app="ControllerListings"
+    )
+        div(
+            ng-controller="ControllerListings"
+        )
+            table(ng-table="tableParams")
+                tr(ng-repeat="listing in $data")
+                    td(data-title="'County'") [[listing.county ]]
+                    td(data-title="'City'") [[ listing.city ]]
+                    td(data-title="'Zip'") [[ listing.zip ]]
+                    td(data-title="'Address'") [[ listing.street_addr ]]
+                    td(data-title="'Case'") [[ listing.property_case ]]
+                    td(data-title="'Listing Period'") [[ listing.listing_period ]]
+                    td(data-title="'Price'") [[ listing.price ]]
+                    td(data-title="'Bath'") [[ listing.bath ]]
+                    td(data-title="'Bed'") [[ listing.bed ]]

@@ -45,7 +45,9 @@ var scraper = function (options) {
                 $els.location = $this.find('td[style="width:18%;"] > span');
                 $els.link = $this.find('td[style="width:13%;"] a[onclick]');
                 $els.propertyCase = $els.link.find('u');
-                $els.status = $this.find('span#span4 span');
+                $els.bed = $this.find('td:nth-of-type(6) label');
+                $els.bath = $this.find('td:nth-of-type(7) label');
+                $els.listingPeriod = $this.find('span#span4 span');
                 $els.bidDate = $this.find('td:nth-of-type(9) span');
 
                 var rawLink = $els.link.attr('onclick');
@@ -75,7 +77,7 @@ var scraper = function (options) {
                     }
                     // state = _area[1];
                     if (_area[2]) {
-                        zip = _area[2];
+                        zip = parseFloat(_area[2]);
                     } else {
                         console.log('Could not find zip of ' + propertyCase);
                     }
@@ -89,21 +91,28 @@ var scraper = function (options) {
                     price = rawPrice
                         .replace('$', '')
                         .replace(',', '');
+
+                    price = parseFloat(price);
                 } else {
                     console.log('Could not find price of ' + propertyCase);
                 }
 
-                var status  = $els.status.text();
+                var listingPeriod  = $els.listingPeriod.text();
                 var bidDate = $els.bidDate.text();
+                var bed = parseFloat($els.bed.text());
+                var bath = parseFloat($els.bath.text());
 
                 var row = {};
+                row.propertyCase = propertyCase;
                 row.link    = link || '';
                 row.price   = price || '';
                 row.address = address || '';
                 row.city    = city || '';
                 row.zip     = zip || '';
-                row.status  = status || '';
+                row.listingPeriod  = listingPeriod || '';
                 row.bidDate = bidDate || '';
+                row.bed = bed || '';
+                row.bath = bath || '';
 
                 listings[propertyCase] = row;
             });

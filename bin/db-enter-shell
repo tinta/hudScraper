@@ -1,0 +1,1 @@
+mysql -u huduser --password=$HUD_DB_PW hud

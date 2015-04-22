@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS `homes` (
   `state` varchar(31) NOT NULL,
   `county` varchar(31) NOT NULL,
   `city` varchar(63) NOT NULL,
+  `zip` double NOT NULL,
   `price` double NOT NULL,
   `bed` double NOT NULL,
   `bath` double NOT NULL,
